@@ -1,0 +1,57 @@
+======================================================
+======================================================
+This script is to install the Cisco VPN client for linux
+on the Backtrack 5 distrobution. This is all licensed 
+under the GPLv3 and is maintained by James Luther.
+
+Recently during a pentest I had to connect to the systems
+that were being tested by using a Cisco VPN which only
+supported certificate based authentication. This normally
+isn't an issue but I use a custom build of BT5 during
+penetration tests unless we find something specific that 
+we want to target which then we move on to one of the 
+special/specific linux builds. Either way I couldn't vpn
+from the pentesting workstation. Initially I used 
+proxychains to make my tools available then I broke down
+and did this. I certainly hope it saves some of you time
+and effort.  Enjoy!
+
+
+=======================================================
+Installing Cisco VPN Client in BT5 R3
+=======================================================
+
+1. Clone this repository on your local machine.
+	1a. Extract tar and verify tar contents:
+		vpnclient-linux-x86_64-4.8.02.0030-k9.tar.gz
+		ciscovpn-bt5.patch
+
+2. Run VPN-Installer script.
+
+3. Import user certificates.
+	3a. The only certificate needed is the DS p12
+	3b. Certificates are imported using:
+		cisco_cert_mgr -U -op import
+	    Follow the onscreen instructions from there.
+
+4. Copy your connection profile from magicdesk machine.
+	4a. Profile connections are stored:
+		C:\Program Files (x86)\Cisco Systems\VPN Client\Profiles
+	4b. Copy the connection profile to the Profiles location on Backtrack
+		/etc/opt/cisco-vpnclient/Profiles/
+
+5. Edit your Profile Configuration File (.pcf) to show the certificate store used in linux.
+	5a. vi /etc/opt/cisco-vpnclient/Profiles/xxxxx.pcf
+	5b. The field "CertStore=2" needs to be changed to "CertStore=1"
+
+6. Verify all certificates are installed correctly.
+	6a. cisco_cert_mgr -U -op verify
+            Follow the on screen instructions and verify all imported certificates
+	    cisco_cert_mgr -R -op verify
+	    Again, follow the on screen instructions and verify all imported certificates
+
+7. Start the vpn service
+	7a. /etc/init.d/vpnclient_init start
+
+8. Connect the vpn
+	8a. vpnclient connect xxxx <-- this is the name of your connection profile.  There is no need to put the full path or .pcf
